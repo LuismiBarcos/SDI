@@ -1,9 +1,10 @@
 package org.sdi.injector
 
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.util.stream.Collectors
+import org.sdi.annotations.Component
+import org.sdi.annotations.Inject
+import java.io.File
+import java.lang.reflect.Field
+import java.net.URI
 
 
 /**
@@ -11,32 +12,74 @@ import java.util.stream.Collectors
  */
 class Injector {
 
+    private val dIContainer = mutableMapOf<String, Any>()
+    private val applicationContext = mutableMapOf<Class<*>, Any>()
 
+    public fun getService(clazz: Class<*>): Any = applicationContext[clazz]!!
 
-    fun findAllClassesUsingClassLoader(packageName: String): Set<Class<*>?>? {
-        val stream: InputStream = ClassLoader.getSystemClassLoader()
-            .getResourceAsStream(packageName.replace("[.]".toRegex(), "/"))
-        val reader = BufferedReader(InputStreamReader(stream))
-        return reader.lines()
-            .filter { line: String -> line.endsWith(".class") }
-            .map { line: String ->
-                getClass(
-                    line,
-                    packageName
-                )
+    public fun getClasses(packageName: String): Iterable<Class<*>> {
+        val classLoader = Thread.currentThread().contextClassLoader
+        val path = packageName.replace('.', '/')
+        val resources = classLoader.getResources(path).toList()
+
+        return resources.map {
+            File(URI(it.file).path)
+        }.map {
+            if (it.exists()) findClasses(it.listFiles(), packageName) else emptyList()
+        }.flatten()
+    }
+
+    private fun findClasses(files: Array<File>?, packageName: String): List<Class<*>> =
+        files?.map {
+            if (it.isDirectory) {
+                findClasses(it.listFiles(), "$packageName.${it.name}")
+            } else {
+                val clazz = Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}")
+                fillDIContainer(clazz)
+                handleInjects(clazz)
+                listOf(Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}"))
             }
-            .collect(Collectors.toSet())
+        }?.flatten()
+            ?: emptyList()
+
+    private fun fillDIContainer(clazz: Class<*>) {
+        if(clazz.isAnnotationPresent(Component::class.java)) {
+            val newInstance = clazz.newInstance()
+            val interfaces = clazz.interfaces
+            if (interfaces.isEmpty()) {
+                dIContainer[newInstance.javaClass.canonicalName] = newInstance
+            } else {
+                interfaces.forEach {
+                    dIContainer[it.canonicalName] = newInstance
+                }
+            }
+        }
     }
 
-    private fun getClass(className: String, packageName: String): Class<*>? {
-        try {
-            return Class.forName(
-                packageName + "."
-                        + className.substring(0, className.lastIndexOf('.'))
-            )
-        } catch (e: ClassNotFoundException) {
-            // handle the exception
+    private fun handleInjects(clazz: Class<*>) {
+        val classFieldsAnnotatedWithInject = getClassFieldsAnnotatedWithInject(clazz, emptyList())
+        if(classFieldsAnnotatedWithInject.isNotEmpty()) {
+            val newInstance = clazz.newInstance()
+            classFieldsAnnotatedWithInject.forEach {
+                it.getAnnotation(Inject::class.java).value
+                if(it.type.isInterface) {
+                    it.isAccessible = true
+                    it.set(newInstance, dIContainer[it.type.canonicalName])
+                    it.isAccessible = false
+                    applicationContext[clazz] = newInstance
+                }
+            }
         }
-        return null
     }
+
+    private tailrec fun getClassFieldsAnnotatedWithInject(clazz: Class<*>, fields: List<Field>): List<Field> =
+        if(clazz.superclass == null) {
+            fields
+        } else {
+            getClassFieldsAnnotatedWithInject(
+                clazz.superclass,
+                fields + clazz.declaredFields.filter {
+                it.isAnnotationPresent(Inject::class.java)
+            })
+        }
 }
