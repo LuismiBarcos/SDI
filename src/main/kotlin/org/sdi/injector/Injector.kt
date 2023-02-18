@@ -104,9 +104,4 @@ class Injector {
         dIContainer.clear()
         pendingInjections.clear()
     }
-
-    private data class PendingInjection(
-        val instance: Any,
-        val field: Field,
-    )
 }
