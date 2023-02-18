@@ -11,14 +11,12 @@ class SDITest {
 
     companion object {
         private lateinit var simpleDependencyInjector: SimpleDependencyInjector
-        private lateinit var userAccountClient: UserAccountClient
     }
 
     @BeforeEach
     fun setup() {
         simpleDependencyInjector = SimpleDependencyInjector()
         simpleDependencyInjector.init(UserAccountClient::class.java)
-        userAccountClient = simpleDependencyInjector.getService(UserAccountClient::class.java)
     }
 
     @Test
