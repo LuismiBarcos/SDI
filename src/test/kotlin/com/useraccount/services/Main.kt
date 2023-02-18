@@ -10,12 +10,9 @@ import kotlin.system.measureTimeMillis
 private class Main
 
 fun main() {
-    val measureTimeMillis = measureTimeMillis {
-        val injector = SimpleDependencyInjector()
-        injector.init(Main::class.java)
+    val injector = SimpleDependencyInjector()
+    injector.init(Main::class.java)
 
-        val userAccountClient = injector.getService(UserAccountClient::class.java)
-        userAccountClient.displayUserAccount()
-    }
-    println("Execution in milliseconds: $measureTimeMillis")
+    val userAccountClient = injector.getService(UserAccountClient::class.java)
+    userAccountClient.displayUserAccount()
 }
