@@ -72,14 +72,22 @@ class Injector {
     }
 
     private fun handleInjects(instance:Any, fields: List<Field>) {
-        fields.forEach {
-            val classToInjectCanonicalName = it.type.canonicalName
+        fields.forEach { field ->
+            val annotationValue = field.getAnnotation(Inject::class.java).value
 
-            if (dIContainer.containsKey(classToInjectCanonicalName)) {
-                inject(instance, it)
+            if(annotationValue.isBlank()) {
+                injectDependency(annotationValue, instance, field)
             } else {
-                pendingInjections.add(PendingInjection(instance, it))
+                injectDependency(field.type.canonicalName, instance, field)
             }
+        }
+    }
+
+    private fun injectDependency(classToInjectCanonicalName: String, instance: Any, field: Field) {
+        if (dIContainer.containsKey(classToInjectCanonicalName)) {
+            inject(instance, field)
+        } else {
+            pendingInjections.add(PendingInjection(instance, field))
         }
     }
 
