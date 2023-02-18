@@ -30,6 +30,9 @@ class Injector {
                 fillApplicationContext(it.listFiles(), packageName)
             }
         }
+
+        executePendingInjections()
+        clear()
     }
 
     private fun fillApplicationContext(files: Array<File>?, packageName: String) {
@@ -96,6 +99,11 @@ class Injector {
                 it.isAnnotationPresent(Inject::class.java)
             })
         }
+
+    private fun clear() {
+        dIContainer.clear()
+        pendingInjections.clear()
+    }
 
     private data class PendingInjection(
         val instance: Any,
