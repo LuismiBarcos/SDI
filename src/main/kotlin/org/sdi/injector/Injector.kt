@@ -35,12 +35,39 @@ class Injector {
                 findClasses(it.listFiles(), "$packageName.${it.name}")
             } else {
                 val clazz = Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}")
-                fillDIContainer(clazz)
-                handleInjects(clazz)
+                if(clazz.isAnnotationPresent(Component::class.java)) {
+                    handleComponent(clazz)
+                }
+//                fillDIContainer(clazz)
+//                handleInjects(clazz)
                 listOf(Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}"))
             }
         }?.flatten()
             ?: emptyList()
+
+    private fun handleComponent(clazz: Class<*>) {
+        val newInstance = clazz.newInstance()
+        val interfaces = clazz.interfaces
+
+        if(interfaces.isEmpty())
+            dIContainer[newInstance.javaClass.canonicalName] = newInstance
+        else {
+            interfaces.forEach {
+                dIContainer[it.canonicalName] = newInstance
+            }
+        }
+
+        handleInjects(newInstance, getClassFieldsAnnotatedWithInject(clazz, emptyList()))
+        applicationContext[clazz] = newInstance
+    }
+
+    private fun handleInjects(instance:Any, fields: List<Field>) {
+        fields.forEach {
+            it.isAccessible = true
+            it.set(instance, dIContainer[it.type.canonicalName])
+            it.isAccessible = false
+        }
+    }
 
     private fun fillDIContainer(clazz: Class<*>) {
         if(clazz.isAnnotationPresent(Component::class.java)) {
