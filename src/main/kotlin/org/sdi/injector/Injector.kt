@@ -14,10 +14,11 @@ class Injector {
 
     private val dIContainer = mutableMapOf<String, Any>()
     private val applicationContext = mutableMapOf<Class<*>, Any>()
+    private val pendingInjections = mutableListOf<PendingInjection>()
 
-    public fun getService(clazz: Class<*>): Any = applicationContext[clazz]!!
+    fun getService(clazz: Class<*>): Any = applicationContext[clazz]!!
 
-    public fun getClasses(packageName: String): Iterable<Class<*>> {
+    fun getClasses(packageName: String): Iterable<Class<*>> {
         val classLoader = Thread.currentThread().contextClassLoader
         val path = packageName.replace('.', '/')
         val resources = classLoader.getResources(path).toList()
@@ -38,8 +39,6 @@ class Injector {
                 if(clazz.isAnnotationPresent(Component::class.java)) {
                     handleComponent(clazz)
                 }
-//                fillDIContainer(clazz)
-//                handleInjects(clazz)
                 listOf(Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}"))
             }
         }?.flatten()
@@ -63,39 +62,25 @@ class Injector {
 
     private fun handleInjects(instance:Any, fields: List<Field>) {
         fields.forEach {
-            it.isAccessible = true
-            it.set(instance, dIContainer[it.type.canonicalName])
-            it.isAccessible = false
-        }
-    }
+            val classToInjectCanonicalName = it.type.canonicalName
 
-    private fun fillDIContainer(clazz: Class<*>) {
-        if(clazz.isAnnotationPresent(Component::class.java)) {
-            val newInstance = clazz.newInstance()
-            val interfaces = clazz.interfaces
-            if (interfaces.isEmpty()) {
-                dIContainer[newInstance.javaClass.canonicalName] = newInstance
+            if (dIContainer.containsKey(classToInjectCanonicalName)) {
+                inject(instance, it)
             } else {
-                interfaces.forEach {
-                    dIContainer[it.canonicalName] = newInstance
-                }
+                pendingInjections.add(PendingInjection(instance, it))
             }
         }
     }
 
-    private fun handleInjects(clazz: Class<*>) {
-        val classFieldsAnnotatedWithInject = getClassFieldsAnnotatedWithInject(clazz, emptyList())
-        if(classFieldsAnnotatedWithInject.isNotEmpty()) {
-            val newInstance = clazz.newInstance()
-            classFieldsAnnotatedWithInject.forEach {
-                it.getAnnotation(Inject::class.java).value
-                if(it.type.isInterface) {
-                    it.isAccessible = true
-                    it.set(newInstance, dIContainer[it.type.canonicalName])
-                    it.isAccessible = false
-                    applicationContext[clazz] = newInstance
-                }
-            }
+    private fun inject(instance: Any, field: Field) {
+        field.isAccessible = true
+        field.set(instance, dIContainer[field.type.canonicalName])
+        field.isAccessible = false
+    }
+
+    private fun executePendingInjections() {
+        pendingInjections.forEach {
+            inject(it.instance, it.field)
         }
     }
 
@@ -109,4 +94,9 @@ class Injector {
                 it.isAnnotationPresent(Inject::class.java)
             })
         }
+
+    private data class PendingInjection(
+        val instance: Any,
+        val field: Field,
+    )
 }
