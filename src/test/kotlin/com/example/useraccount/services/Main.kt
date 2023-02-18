@@ -1,4 +1,4 @@
-package com.useraccount.services
+package com.example.useraccount.services
 
 import org.sdi.injector.SimpleDependencyInjector
 import kotlin.system.measureTimeMillis

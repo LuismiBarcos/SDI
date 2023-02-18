@@ -1,5 +1,5 @@
-import com.useraccount.services.UserAccountClient
-import com.useraccount.services.impl.UserServiceImpl
+import com.example.useraccount.services.UserAccountClient
+import com.example.useraccount.services.impl.UserServiceImpl
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.sdi.injector.SimpleDependencyInjector

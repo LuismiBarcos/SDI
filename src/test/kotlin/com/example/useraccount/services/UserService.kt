@@ -1,4 +1,4 @@
-package com.useraccount.services
+package com.example.useraccount.services
 
 /**
  *@author Luis Miguel Barcos

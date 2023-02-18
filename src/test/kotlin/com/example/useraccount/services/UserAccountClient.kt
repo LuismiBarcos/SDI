@@ -1,4 +1,4 @@
-package com.useraccount.services
+package com.example.useraccount.services
 
 import org.sdi.annotations.Component
 import org.sdi.annotations.Inject

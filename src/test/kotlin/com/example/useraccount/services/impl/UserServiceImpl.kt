@@ -1,6 +1,6 @@
-package com.useraccount.services.impl
+package com.example.useraccount.services.impl
 
-import com.useraccount.services.UserService
+import com.example.useraccount.services.UserService
 import org.sdi.annotations.Component
 
 /**
