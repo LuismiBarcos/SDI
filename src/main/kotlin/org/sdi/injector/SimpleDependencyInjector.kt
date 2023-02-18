@@ -109,8 +109,8 @@ class SimpleDependencyInjector {
 
     private fun getBeanToInject(classToInjectCanonicalName: String, field: Field): Any =
         dIContainer[field.type.canonicalName]
-            ?.first { it::class.java.canonicalName.equals(classToInjectCanonicalName) }
-            ?: throw Exception("Cannot initialize $field with $classToInjectCanonicalName")
+            ?.firstOrNull { it::class.java.canonicalName.equals(classToInjectCanonicalName) }
+            ?: throw Exception("Field ${field.name} of class ${field.declaringClass} cannot be initialized with $classToInjectCanonicalName")
 
     private fun inject(instance: Any, field: Field, bean: Any) {
         field.isAccessible = true
