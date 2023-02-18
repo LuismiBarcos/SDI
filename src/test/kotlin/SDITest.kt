@@ -22,8 +22,15 @@ class SDITest {
     }
 
     @Test
-    fun test() {
+    fun `test get a component instance`() {
         val service = simpleDependencyInjector.getService(UserServiceImpl::class.java)
         assert(service.getUserName() == "username")
+    }
+
+    @Test
+    fun `test get a main class instance of a project with all fields injected`() {
+        val service = simpleDependencyInjector.getService(UserAccountClient::class.java)
+        val fields = service.javaClass.declaredFields
+        assert(fields.all { it != null })
     }
 }
