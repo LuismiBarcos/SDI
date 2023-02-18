@@ -18,33 +18,34 @@ class Injector {
 
     fun getService(clazz: Class<*>): Any = applicationContext[clazz]!!
 
-    fun getClasses(packageName: String): Iterable<Class<*>> {
+    fun initSDI(packageName: String) {
         val classLoader = Thread.currentThread().contextClassLoader
         val path = packageName.replace('.', '/')
         val resources = classLoader.getResources(path).toList()
 
-        return resources.map {
+        resources.map {
             File(URI(it.file).path)
-        }.map {
-            if (it.exists()) findClasses(it.listFiles(), packageName) else emptyList()
-        }.flatten()
+        }.forEach {
+            if (it.exists()) {
+                fillApplicationContext(it.listFiles(), packageName)
+            }
+        }
     }
 
-    private fun findClasses(files: Array<File>?, packageName: String): List<Class<*>> =
-        files?.map {
+    private fun fillApplicationContext(files: Array<File>?, packageName: String) {
+        files?.forEach {
             if (it.isDirectory) {
-                findClasses(it.listFiles(), "$packageName.${it.name}")
+                fillApplicationContext(it.listFiles(), "$packageName.${it.name}")
             } else {
                 val clazz = Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}")
-                if(clazz.isAnnotationPresent(Component::class.java)) {
-                    handleComponent(clazz)
+                if (clazz.isAnnotationPresent(Component::class.java)) {
+                    applicationContext[clazz] = handleComponent(clazz)
                 }
-                listOf(Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}"))
             }
-        }?.flatten()
-            ?: emptyList()
+        }
+    }
 
-    private fun handleComponent(clazz: Class<*>) {
+    private fun handleComponent(clazz: Class<*>): Any {
         val newInstance = clazz.newInstance()
         val interfaces = clazz.interfaces
 
@@ -57,7 +58,8 @@ class Injector {
         }
 
         handleInjects(newInstance, getClassFieldsAnnotatedWithInject(clazz, emptyList()))
-        applicationContext[clazz] = newInstance
+
+        return newInstance
     }
 
     private fun handleInjects(instance:Any, fields: List<Field>) {

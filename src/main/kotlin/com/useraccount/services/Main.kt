@@ -10,7 +10,7 @@ import kotlin.system.measureTimeMillis
 fun main() {
     val measureTimeMillis = measureTimeMillis {
         val injector = Injector()
-        injector.getClasses("com")
+        injector.initSDI("com")
 
         val userAccountClient = injector.getService(UserAccountClient::class.java) as UserAccountClient
         userAccountClient.displayUserAccount()
