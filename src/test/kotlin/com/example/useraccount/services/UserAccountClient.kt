@@ -11,7 +11,7 @@ class UserAccountClient {
     @Inject
     private lateinit var userService: UserService
 
-    @Inject("com.useraccount.services.impl.AccountServiceImpl")
+    @Inject("com.example.useraccount.services.impl.AccountServiceImpl")
     private lateinit var accountService: AccountService
 
     fun displayUserAccount() {
