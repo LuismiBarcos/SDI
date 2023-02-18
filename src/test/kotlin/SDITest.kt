@@ -17,7 +17,7 @@ class SDITest {
     @BeforeEach
     fun setup() {
         injector = Injector()
-        injector.initSDI(UserAccountClient::class.java.`package`.name)
+        injector.initSDI(UserAccountClient::class.java)
         userAccountClient = injector.getService(UserAccountClient::class.java)
     }
 
