@@ -18,12 +18,12 @@ class SDITest {
     fun setup() {
         injector = Injector()
         injector.initSDI(UserAccountClient::class.java.`package`.name)
-        userAccountClient = injector.getService(UserAccountClient::class.java) as UserAccountClient
+        userAccountClient = injector.getService(UserAccountClient::class.java)
     }
 
     @Test
     fun test() {
-        val service = injector.getService(UserServiceImpl::class.java) as UserServiceImpl
+        val service = injector.getService(UserServiceImpl::class.java)
         assert(service.getUserName() == "username")
     }
 }

@@ -1,6 +1,5 @@
 package org.sdi.injector
 
-import org.omg.CosNaming.NamingContextPackage.NotFound
 import org.sdi.annotations.Component
 import org.sdi.annotations.Inject
 import java.io.File
@@ -17,12 +16,10 @@ class Injector {
     private val applicationContext = mutableMapOf<Class<*>, Any>()
     private val pendingInjections = mutableListOf<PendingInjection>()
 
-    fun getService(clazz: Class<*>): Any =
-        if (applicationContext.containsKey(clazz)) {
-            applicationContext[clazz]!!
-        } else {
-            throw NotFound()
-        }
+    fun <T> getService(clazz: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return applicationContext[clazz] as T ?: throw Exception("Instance not found")
+    }
 
     fun initSDI(packageName: String) {
         val classLoader = Thread.currentThread().contextClassLoader

@@ -12,7 +12,7 @@ fun main() {
         val injector = Injector()
         injector.initSDI("com")
 
-        val userAccountClient = injector.getService(UserAccountClient::class.java) as UserAccountClient
+        val userAccountClient = injector.getService(UserAccountClient::class.java)
         userAccountClient.displayUserAccount()
     }
     println("Execution in milliseconds: $measureTimeMillis")
