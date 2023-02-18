@@ -1,19 +1,19 @@
 package com.useraccount.services
 
 import org.sdi.injector.Injector
-import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 
 
 /**
  *@author Luis Miguel Barcos
  */
 fun main() {
-    val startTime = System.nanoTime()
-    val injector = Injector()
-    injector.getClasses("com")
+    val measureTimeMillis = measureTimeMillis {
+        val injector = Injector()
+        injector.getClasses("com")
 
-    val userAccountClient = injector.getService(UserAccountClient::class.java) as UserAccountClient
-    userAccountClient.displayUserAccount()
-    val endTime = System.nanoTime() - startTime
-    println("Execution in milliseconds: ${TimeUnit.MILLISECONDS.convert(endTime, TimeUnit.NANOSECONDS)}")
+        val userAccountClient = injector.getService(UserAccountClient::class.java) as UserAccountClient
+        userAccountClient.displayUserAccount()
+    }
+    println("Execution in milliseconds: $measureTimeMillis")
 }
