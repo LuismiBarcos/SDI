@@ -13,7 +13,7 @@ import java.net.URI
  */
 class Injector {
 
-    private val dIContainer = mutableMapOf<String, Any>()
+    private val dIContainer = mutableMapOf<String, MutableList<Any>>()
     private val applicationContext = mutableMapOf<Class<*>, Any>()
     private val pendingInjections = mutableListOf<PendingInjection>()
 
@@ -58,11 +58,12 @@ class Injector {
         val newInstance = clazz.newInstance()
         val interfaces = clazz.interfaces
 
-        if(interfaces.isEmpty())
-            dIContainer[newInstance.javaClass.canonicalName] = newInstance
+        if(interfaces.isEmpty()) {
+            fillDIContainer(newInstance, newInstance.javaClass.canonicalName)
+        }
         else {
             interfaces.forEach {
-                dIContainer[it.canonicalName] = newInstance
+                fillDIContainer(newInstance, it.canonicalName)
             }
         }
 
@@ -71,12 +72,20 @@ class Injector {
         return newInstance
     }
 
+    private fun fillDIContainer(instance: Any, classToInjectCanonicalName: String) {
+        (dIContainer[classToInjectCanonicalName]
+            ?.let { it + instance }
+            ?.toMutableList()
+            ?: mutableListOf(instance))
+        .also { dIContainer[classToInjectCanonicalName] = it }
+    }
+
     private fun handleInjects(instance:Any, fields: List<Field>) {
         fields.forEach { field ->
             val annotationValue = field.getAnnotation(Inject::class.java).value
 
-            if(annotationValue.isBlank()) {
-                injectDependency(annotationValue, instance, field)
+            if(annotationValue.isNotBlank()) {
+                injectSpecificDependency(annotationValue, instance, field)
             } else {
                 injectDependency(field.type.canonicalName, instance, field)
             }
@@ -85,21 +94,35 @@ class Injector {
 
     private fun injectDependency(classToInjectCanonicalName: String, instance: Any, field: Field) {
         if (dIContainer.containsKey(classToInjectCanonicalName)) {
-            inject(instance, field)
+            inject(instance, field, getFirstBean(field))
         } else {
             pendingInjections.add(PendingInjection(instance, field))
         }
     }
 
-    private fun inject(instance: Any, field: Field) {
+    private fun getFirstBean(field: Field): Any =
+        dIContainer[field.type.canonicalName]
+            ?.first()
+            ?: throw Exception("Cannot find an implementation for $field")
+
+    private fun injectSpecificDependency(classToInjectCanonicalName: String, instance: Any, field: Field) {
+        inject(instance, field, getBeanToInject(classToInjectCanonicalName, field))
+    }
+
+    private fun getBeanToInject(classToInjectCanonicalName: String, field: Field): Any =
+        dIContainer[field.type.canonicalName]
+            ?.first { it::class.java.canonicalName.equals(classToInjectCanonicalName) }
+            ?: throw Exception("Cannot initialize $field with $classToInjectCanonicalName")
+
+    private fun inject(instance: Any, field: Field, bean: Any) {
         field.isAccessible = true
-        field.set(instance, dIContainer[field.type.canonicalName])
+        field.set(instance, bean)
         field.isAccessible = false
     }
 
     private fun executePendingInjections() {
         pendingInjections.forEach {
-            inject(it.instance, it.field)
+            handleInjects(it.instance, listOf(it.field))
         }
     }
 
