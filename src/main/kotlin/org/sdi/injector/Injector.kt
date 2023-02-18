@@ -21,7 +21,8 @@ class Injector {
         return applicationContext[clazz] as T ?: throw Exception("Instance not found")
     }
 
-    fun initSDI(packageName: String) {
+    fun initSDI(clazz: Class<*>) {
+        val packageName = clazz.`package`.name
         val classLoader = Thread.currentThread().contextClassLoader
         val path = packageName.replace('.', '/')
         val resources = classLoader.getResources(path).toList()
