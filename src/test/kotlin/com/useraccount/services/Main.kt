@@ -1,6 +1,6 @@
 package com.useraccount.services
 
-import org.sdi.injector.Injector
+import org.sdi.injector.SimpleDependencyInjector
 import kotlin.system.measureTimeMillis
 
 
@@ -11,8 +11,8 @@ private class Main
 
 fun main() {
     val measureTimeMillis = measureTimeMillis {
-        val injector = Injector()
-        injector.initSDI(Main::class.java)
+        val injector = SimpleDependencyInjector()
+        injector.init(Main::class.java)
 
         val userAccountClient = injector.getService(UserAccountClient::class.java)
         userAccountClient.displayUserAccount()

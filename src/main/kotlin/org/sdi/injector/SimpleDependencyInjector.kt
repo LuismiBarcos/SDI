@@ -10,7 +10,7 @@ import java.net.URI
 /**
  *@author Luis Miguel Barcos
  */
-class Injector {
+class SimpleDependencyInjector {
 
     private val dIContainer = mutableMapOf<String, MutableList<Any>>()
     private val applicationContext = mutableMapOf<Class<*>, Any>()
@@ -21,7 +21,7 @@ class Injector {
         return applicationContext[clazz] as T ?: throw Exception("Instance not found")
     }
 
-    fun initSDI(clazz: Class<*>) {
+    fun init(clazz: Class<*>) {
         val packageName = clazz.`package`.name
         val classLoader = Thread.currentThread().contextClassLoader
         val path = packageName.replace('.', '/')

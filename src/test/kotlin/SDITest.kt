@@ -2,7 +2,7 @@ import com.useraccount.services.UserAccountClient
 import com.useraccount.services.impl.UserServiceImpl
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.sdi.injector.Injector
+import org.sdi.injector.SimpleDependencyInjector
 
 /**
  *@author Luis Miguel Barcos
@@ -10,20 +10,20 @@ import org.sdi.injector.Injector
 class SDITest {
 
     companion object {
-        private lateinit var injector: Injector
+        private lateinit var simpleDependencyInjector: SimpleDependencyInjector
         private lateinit var userAccountClient: UserAccountClient
     }
 
     @BeforeEach
     fun setup() {
-        injector = Injector()
-        injector.initSDI(UserAccountClient::class.java)
-        userAccountClient = injector.getService(UserAccountClient::class.java)
+        simpleDependencyInjector = SimpleDependencyInjector()
+        simpleDependencyInjector.init(UserAccountClient::class.java)
+        userAccountClient = simpleDependencyInjector.getService(UserAccountClient::class.java)
     }
 
     @Test
     fun test() {
-        val service = injector.getService(UserServiceImpl::class.java)
+        val service = simpleDependencyInjector.getService(UserServiceImpl::class.java)
         assert(service.getUserName() == "username")
     }
 }
