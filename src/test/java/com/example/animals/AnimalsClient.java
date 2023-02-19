@@ -7,7 +7,7 @@ import org.sdi.annotations.Inject;
 /**
  * @author Luis Miguel Barcos
  */
-@Component(classes = "com.example.animals.AnimalsClient")
+@Component(classes = AnimalsClient.class)
 public class AnimalsClient {
 
     @Inject

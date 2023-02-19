@@ -6,7 +6,7 @@ import org.sdi.annotations.Inject
 /**
  *@author Luis Miguel Barcos
  */
-@Component(["com.example.useraccount.services.UserAccountClient"])
+@Component(classes = [UserAccountClient::class])
 class UserAccountClient {
     @Inject
     private lateinit var userService: UserService
