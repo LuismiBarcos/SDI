@@ -1,111 +1,37 @@
 # SDI - Simple Dependency Injector
-Simple Dependency Injector is a Dependency Injector built in Kotlin to be used in small projects.
+Simple Dependency Injector is a Dependency Injector built in Kotlin/Java to be used in small projects.
 
 ### How to use it
 There are two main annotations:
 * Component: Used to annotate the classes that should be injected by the injector. This annotation should be used in implementation classes or in classes that the user wants to be instantiated by the injector (like a Bean)
-* Inject: Used to annotate the classes to be injected by the injector. In the future, the annotation will also support providing the value of a specific implementation that wants to be injected.
+* Inject: Used to annotate the classes to be injected by the injector.
 
-### Example
-Imagine a project with the following structure
-* Interfaces: 
-  * AccountService
-  * UserService
-* Implementations: 
-  * AccountServiceImpl
-  * UserServiceImpl
-* Client:
- * UserAccountClient
-* Main
-
-Here it is the implementation in Kotlin
-##### Interfaces
-###### AccountService
+##### Component annotation
+The way to use the `@Component` annotation is the following:
 ```
-package com.useraccount.services
-
-interface AccountService {
-    fun getAccountNumber(username: String): Long
-}
+@Component(classes = [MyService::class])
 ```
-###### UserService
+It is necessary to provide a class or classes that the component implements, so the injector could track the different implementations.
+Also, if it is necessary to just track a class that does not implement an interface, it is possible by setting the own class
 ```
-package com.useraccount.services
-
-interface UserService {
-    fun getUserName(): String
-}
+@Component(classes = [MyClass::class])
 ```
-##### Implementations
-###### AccountServiceImpl
+##### Inject annotation
+The way to use the `@Inject` annotation is the following:
 ```
-package com.useraccount.services.impl
+@Inject
+or
+@Inject("com.example.useraccount.services.impl.AccountServiceImpl")
+``` 
+If there is no package name provided in the annotation, the injector will inject the first implementation that it founds. On the other hand, if there is a canonical name in the annotation, the injector will provide that instance.
 
-import com.useraccount.services.AccountService
-import org.sdi.annotations.Component
+### Examples
+[Java example](https://github.com/LuismiBarcos/SDI/tree/main/src/test/java/com)
+* Special attention to `Animals` file as is the example of how to configure SDI in your java project.
 
-@Component
-class AccountServiceImpl: AccountService {
-    override fun getAccountNumber(username: String): Long = 123456789L
-}
-```
-###### UserServiceImpl
-```
-package com.useraccount.services.impl
+[Kotlin example](https://github.com/LuismiBarcos/SDI/tree/main/src/test/kotlin/com)
+* Special attention to `Main` file as is the example of how to configure SDI in your kotlin project.
 
-import com.useraccount.services.UserService
-import org.sdi.annotations.Component
-
-@Component
-class UserServiceImpl: UserService {
-    override fun getUserName(): String = "username"
-}
-```
-Note the use of @Component annotation to mark that these classes will be injected as an implementation of the interface
-##### Client
-###### UserAccountClient
-```
-package com.useraccount.services
-
-import org.sdi.annotations.Component
-import org.sdi.annotations.Inject
-
-@Component
-class UserAccountClient {
-    @Inject
-    private lateinit var userService: UserService
-
-    @Inject
-    private lateinit var accountService: AccountService
-
-    fun displayUserAccount() {
-        val userName = userService.getUserName()
-        val accountNumber = accountService.getAccountNumber(userName)
-        println("Username: $userName\nAccountNumber: $accountNumber")
-    }
-}
-```
-Note the use of @Inject annotation to mark the fields that should be injected by the injector. The injector will provide an instance of the interface implementation.
-##### Main
-###### Main
-```
-package com.useraccount.services
-
-import org.sdi.injector.Injector
-import java.util.concurrent.TimeUnit
-
-fun main() {
-    val startTime = System.nanoTime()
-    val injector = Injector()
-    injector.getClasses("com")
-
-    val userAccountClient = injector.getService(UserAccountClient::class.java) as UserAccountClient
-    userAccountClient.displayUserAccount()
-    val endTime = System.nanoTime() - startTime
-    println("Execution in milliseconds: ${TimeUnit.MILLISECONDS.convert(endTime, TimeUnit.NANOSECONDS)}")
-}
-```
-This is the way that the injector is used. It is a pretty early version and should evolve soon.
 ### Used tools
 [gitignore.io](https://www.toptal.com/developers/gitignore/)
 
