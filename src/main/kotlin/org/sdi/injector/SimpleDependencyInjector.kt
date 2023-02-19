@@ -57,7 +57,7 @@ class SimpleDependencyInjector {
         val clazzes = clazz.getAnnotation(Component::class.java).classes
 
         clazzes.forEach {
-            fillDIContainer(newInstance, it)
+            fillDIContainer(newInstance, it.qualifiedName!!)
         }
 
         handleInjects(newInstance, getClassFieldsAnnotatedWithInject(clazz, emptyList()))
