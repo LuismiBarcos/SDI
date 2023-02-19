@@ -1,3 +1,4 @@
+import com.example.animals.AnimalsClient
 import com.example.useraccount.services.UserAccountClient
 import com.example.useraccount.services.impl.UserServiceImpl
 import org.junit.jupiter.api.BeforeEach
@@ -10,24 +11,35 @@ import org.sdi.injector.SimpleDependencyInjector
 class SDITest {
 
     companion object {
-        private lateinit var simpleDependencyInjector: SimpleDependencyInjector
+        private lateinit var userApplicationInjector: SimpleDependencyInjector
+        private lateinit var animalsApplicationInjector: SimpleDependencyInjector
     }
 
     @BeforeEach
     fun setup() {
-        simpleDependencyInjector = SimpleDependencyInjector()
-        simpleDependencyInjector.init(UserAccountClient::class.java)
+        userApplicationInjector = SimpleDependencyInjector()
+        userApplicationInjector.init(UserAccountClient::class.java)
+
+        animalsApplicationInjector = SimpleDependencyInjector()
+        animalsApplicationInjector.init(AnimalsClient::class.java)
     }
 
     @Test
     fun `test get a component instance`() {
-        val service = simpleDependencyInjector.getService(UserServiceImpl::class.java)
+        val service = userApplicationInjector.getService(UserServiceImpl::class.java)
         assert(service.getUserName() == "username")
     }
 
     @Test
-    fun `test get a main class instance of a project with all fields injected`() {
-        val service = simpleDependencyInjector.getService(UserAccountClient::class.java)
+    fun `test get a main class instance of user account client with all fields injected`() {
+        val service = userApplicationInjector.getService(UserAccountClient::class.java)
+        val fields = service.javaClass.declaredFields
+        assert(fields.all { it != null })
+    }
+
+    @Test
+    fun `test get a main class instance of a animal client with all fields injected`() {
+        val service = animalsApplicationInjector.getService(AnimalsClient::class.java)
         val fields = service.javaClass.declaredFields
         assert(fields.all { it != null })
     }
