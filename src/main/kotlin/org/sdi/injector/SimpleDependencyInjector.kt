@@ -54,15 +54,10 @@ class SimpleDependencyInjector {
 
     private fun handleComponent(clazz: Class<*>): Any {
         val newInstance = clazz.newInstance()
-        val interfaces = clazz.interfaces
+        val clazzes = clazz.getAnnotation(Component::class.java).classes
 
-        if(interfaces.isEmpty()) {
-            fillDIContainer(newInstance, newInstance.javaClass.canonicalName)
-        }
-        else {
-            interfaces.forEach {
-                fillDIContainer(newInstance, it.canonicalName)
-            }
+        clazzes.forEach {
+            fillDIContainer(newInstance, it)
         }
 
         handleInjects(newInstance, getClassFieldsAnnotatedWithInject(clazz, emptyList()))
@@ -104,13 +99,12 @@ class SimpleDependencyInjector {
             ?: throw Exception("Cannot find an implementation for $field")
 
     private fun injectSpecificDependency(classToInjectCanonicalName: String, instance: Any, field: Field) {
-        inject(instance, field, getBeanToInject(classToInjectCanonicalName, field))
+        if(applicationContext.containsKey(Class.forName(classToInjectCanonicalName))) {
+            inject(instance, field, applicationContext[Class.forName(classToInjectCanonicalName)]!!)
+        } else {
+            pendingInjections.add(PendingInjection(instance, field))
+        }
     }
-
-    private fun getBeanToInject(classToInjectCanonicalName: String, field: Field): Any =
-        dIContainer[field.type.canonicalName]
-            ?.firstOrNull { it::class.java.canonicalName.equals(classToInjectCanonicalName) }
-            ?: throw Exception("Field ${field.name} of class ${field.declaringClass} cannot be initialized with $classToInjectCanonicalName")
 
     private fun inject(instance: Any, field: Field, bean: Any) {
         field.isAccessible = true

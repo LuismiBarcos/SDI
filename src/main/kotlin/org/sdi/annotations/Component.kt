@@ -6,4 +6,4 @@ package org.sdi.annotations
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 @MustBeDocumented
-annotation class Component
+annotation class Component(val classes: Array<String>)
