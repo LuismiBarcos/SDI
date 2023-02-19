@@ -6,7 +6,7 @@ import org.sdi.annotations.Component
 /**
  *@author Luis Miguel Barcos
  */
-@Component
+@Component(["com.example.useraccount.services.AccountService"])
 class AccountServiceImpl: AccountService {
     override fun getAccountNumber(username: String): Long = 123456789L
 }
