@@ -1,9 +1,67 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+    id 'java-library'
+
+    //Add maven-publish and signin plugins
+    id 'maven-publish'
+    id 'signing'
 }
 
-group 'org.sdi'
+group 'io.github.luismibarcos'
 version '0.1'
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'SDI'
+
+            from components.java
+
+            pom {
+                name = 'SDI'
+                description = 'A Simple Dependency Injector for small projects'
+                url = 'https://github.com/LuismiBarcos/SDI'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'LMB'
+                        name = 'Luismi'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/LuismiBarcos/SDI.git'
+                    developerConnection = 'scm:git:ssh//github.com/LuismiBarcos/SDI.git'
+                    url = 'https://github.com/LuismiBarcos/SDI'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username = "$NEXUS_USERNAME"
+                password = "$NEXUS_PASSWORD"
+            }
+
+            name = "SDI"
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
 
 repositories {
     mavenCentral()
