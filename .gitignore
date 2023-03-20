@@ -173,3 +173,6 @@ gradle-app.setting
 ## Gradle
 # Ignore gradle.properties
 gradle.properties
+
+# Ignore .idea folder
+.idea
