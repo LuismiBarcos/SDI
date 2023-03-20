@@ -5,7 +5,10 @@ import org.sdi.annotations.Inject
 import java.io.File
 import java.lang.reflect.Field
 import java.net.URI
+import java.util.logging.Level
+import java.util.logging.Logger
 
+//TODO: Handle in a proper way how to behave when it is executed from a .jar
 
 /**
  *@author Luis Miguel Barcos
@@ -15,6 +18,7 @@ class SimpleDependencyInjector {
     private val dIContainer = mutableMapOf<String, MutableList<Any>>()
     private val applicationContext = mutableMapOf<Class<*>, Any>()
     private val pendingInjections = mutableListOf<PendingInjection>()
+    private var jarHandler: JarHandler? = null
 
     fun <T> getService(clazz: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -27,16 +31,29 @@ class SimpleDependencyInjector {
         val path = packageName.replace('.', '/')
         val resources = classLoader.getResources(path).toList()
 
-        resources.map {
-            File(URI(it.file).path)
-        }.forEach {
-            if (it.exists()) {
-                fillApplicationContext(it.listFiles(), packageName)
+        try {
+            resources.map {
+                if (it.protocol.equals("jar")) {
+                    jarHandler = JarHandler()
+                    jarHandler!!.unzipJar(clazz, path)
+                }
+                else {
+                    File(URI(it.file).path)
+                }
+            }.forEach {
+                if (it.exists()) {
+                    fillApplicationContext(it.listFiles(), packageName)
+                }
             }
-        }
 
-        executePendingInjections()
-        clear()
+            executePendingInjections()
+            clear()
+        } catch (exception: Exception) {
+            val logger = Logger.getLogger(SimpleDependencyInjector::class.simpleName)
+            logger.log(Level.SEVERE, "Something went wrong!\n${exception.message}")
+        } finally {
+            jarHandler?.removeTempWorkspace()
+        }
     }
 
     private fun fillApplicationContext(files: Array<File>?, packageName: String) {
