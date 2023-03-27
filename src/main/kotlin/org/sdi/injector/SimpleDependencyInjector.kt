@@ -5,10 +5,9 @@ import org.sdi.annotations.Inject
 import java.io.File
 import java.lang.reflect.Field
 import java.net.URI
-import java.util.logging.Level
-import java.util.logging.Logger
-
-//TODO: Handle in a proper way how to behave when it is executed from a .jar
+import java.net.URL
+import java.net.URLClassLoader
+import java.util.jar.JarFile
 
 /**
  *@author Luis Miguel Barcos
@@ -18,7 +17,6 @@ class SimpleDependencyInjector {
     private val dIContainer = mutableMapOf<String, MutableList<Any>>()
     private val applicationContext = mutableMapOf<Class<*>, Any>()
     private val pendingInjections = mutableListOf<PendingInjection>()
-    private var jarHandler: JarHandler? = null
 
     fun <T> getService(clazz: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -31,46 +29,56 @@ class SimpleDependencyInjector {
         val path = packageName.replace('.', '/')
         val resources = classLoader.getResources(path).toList()
 
-        try {
-            resources.map {
-                if (it.protocol.equals("jar")) {
-                    jarHandler = JarHandler()
-                    jarHandler!!.unzipJar(clazz, path)
-                }
-                else {
-                    File(URI(it.file).path)
-                }
-            }.forEach {
-                if (it.exists()) {
-                    fillApplicationContext(it.listFiles(), packageName)
-                }
+        resources.forEach {
+            if (it.protocol.equals("jar")) {
+                loadJarClasses(URI(clazz.protectionDomain.codeSource.location.file).path, path)
+            } else {
+                val file = File(URI(it.file).path)
+                loadFileClasses(file.listFiles(), packageName)
             }
+        }
 
-            executePendingInjections()
-            clear()
-        } catch (exception: Exception) {
-            val logger = Logger.getLogger(SimpleDependencyInjector::class.simpleName)
-            logger.log(Level.SEVERE, "Something went wrong!\n${exception.message}")
-        } finally {
-            jarHandler?.removeTempWorkspace()
+        executePendingInjections()
+        clear()
+    }
+
+    private fun loadJarClasses(pathToJar: String, mainClassPath: String) {
+        val entries = JarFile(pathToJar).entries()
+        val urls: Array<URL> = arrayOf(URL("jar:file:$pathToJar!/"))
+        val classLoader = URLClassLoader.newInstance(urls)
+
+        for (entry in entries) {
+            if (entry.isDirectory || !entry.name.startsWith(mainClassPath) || !entry.name.endsWith(".class")) {
+                continue
+            }
+            val className = getClassName(entry.name).replace('/', '.')
+            val clazz = classLoader.loadClass(className)
+            if(clazz.isAnnotationPresent(Component::class.java)) {
+                applicationContext[clazz] = handleComponent(clazz)
+            }
         }
     }
 
-    private fun fillApplicationContext(files: Array<File>?, packageName: String) {
+    private fun loadFileClasses(files: Array<File>?, packageName: String) {
         files?.forEach {
             if (it.isDirectory) {
-                fillApplicationContext(it.listFiles(), "$packageName.${it.name}")
+                loadFileClasses(it.listFiles(), "$packageName.${it.name}")
             } else {
-                val clazz = Class.forName("$packageName.${it.name.substring(0, it.name.length - 6)}")
-                if (clazz.isAnnotationPresent(Component::class.java)) {
-                    applicationContext[clazz] = handleComponent(clazz)
-                }
+                fillApplicationContext(Class.forName("$packageName.${getClassName(it.name)}"))
             }
+        }
+    }
+
+    private fun getClassName(name: String): String = name.substring(0, name.length - ".class".length)
+
+    private fun fillApplicationContext(clazz: Class<*>) {
+        if(clazz.isAnnotationPresent(Component::class.java)) {
+            applicationContext[clazz] = handleComponent(clazz)
         }
     }
 
     private fun handleComponent(clazz: Class<*>): Any {
-        val newInstance = clazz.newInstance()
+        val newInstance = clazz.getDeclaredConstructor().newInstance()
         val clazzes = clazz.getAnnotation(Component::class.java).classes
 
         clazzes.forEach {
@@ -97,13 +105,13 @@ class SimpleDependencyInjector {
             if(annotationValue.isNotBlank()) {
                 injectSpecificDependency(annotationValue, instance, field)
             } else {
-                injectDependency(field.type.canonicalName, instance, field)
+                injectDependency(instance, field)
             }
         }
     }
 
-    private fun injectDependency(classToInjectCanonicalName: String, instance: Any, field: Field) {
-        if (dIContainer.containsKey(classToInjectCanonicalName)) {
+    private fun injectDependency(instance: Any, field: Field) {
+        if (dIContainer.containsKey(field.type.canonicalName)) {
             inject(instance, field, getFirstBean(field))
         } else {
             pendingInjections.add(PendingInjection(instance, field))
