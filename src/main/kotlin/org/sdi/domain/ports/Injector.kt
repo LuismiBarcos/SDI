@@ -1,4 +1,4 @@
-package org.sdi.domain.usecases.ports
+package org.sdi.domain.ports
 
 import org.sdi.domain.model.Instance
 import org.sdi.domain.model.PendingInjection
