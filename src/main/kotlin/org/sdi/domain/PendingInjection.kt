@@ -3,7 +3,7 @@ package org.sdi.domain
 /**
  * @author Luis Miguel Barcos
  */
-class PendingInjection(
+data class PendingInjection(
     val instance: Instance,
     val field: Field
 )
