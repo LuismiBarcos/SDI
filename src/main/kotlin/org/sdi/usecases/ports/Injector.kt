@@ -1,7 +1,7 @@
 package org.sdi.usecases.ports
 
-import org.sdi.domain.Instance
-import org.sdi.domain.PendingInjection
+import org.sdi.domain.model.Instance
+import org.sdi.domain.model.PendingInjection
 
 /**
  * @author Luis Miguel Barcos

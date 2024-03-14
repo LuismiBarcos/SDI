@@ -2,9 +2,9 @@ package org.sdi.adapter
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.sdi.domain.Field
-import org.sdi.domain.Instance
-import org.sdi.domain.PendingInjection
+import org.sdi.domain.model.Field
+import org.sdi.domain.model.Instance
+import org.sdi.domain.model.PendingInjection
 import org.sdi.helper.Foo
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
