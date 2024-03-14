@@ -1,17 +1,20 @@
-package org.sdi.usecases.ports
+package org.sdi.domain.usecases
 
 import org.sdi.domain.model.Instance
 import org.sdi.domain.model.PendingInjection
+import org.sdi.domain.usecases.ports.Injector
 
 /**
  * @author Luis Miguel Barcos
  */
-interface Injector {
+class InjectInstance(val injector: Injector) {
+
     /**
      * Injects the provided instance into the pending injection, which has the instance and the field to update
-     * pending injection.
      * @param pendingInjection
      * @param instanceToInject
      */
-    fun inject(pendingInjection: PendingInjection, instanceToInject: Instance)
+    fun inject(pendingInjection: PendingInjection, instanceToInject: Instance) {
+        injector.inject(pendingInjection, instanceToInject)
+    }
 }

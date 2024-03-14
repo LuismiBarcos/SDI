@@ -2,7 +2,7 @@ package org.sdi.adapter
 
 import org.sdi.domain.model.Instance
 import org.sdi.domain.model.PendingInjection
-import org.sdi.usecases.ports.Injector
+import org.sdi.domain.usecases.ports.Injector
 
 /**
  * @author Luis Miguel Barcos
