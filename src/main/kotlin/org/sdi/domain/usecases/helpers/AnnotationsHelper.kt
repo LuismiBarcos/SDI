@@ -1,15 +1,18 @@
-package org.sdi.adapter
+package org.sdi.domain.usecases.helpers
 
+import org.sdi.annotations.Component
 import org.sdi.annotations.Inject
 import org.sdi.domain.model.Clazz
 import org.sdi.domain.model.Field
-import org.sdi.domain.ports.AnnotationsHandler
 
 /**
  * @author Luis Miguel Barcos
  */
-class AnnotationsHandlerAdapter : AnnotationsHandler {
-    override fun getFieldsMarkedWithInject(clazz: Clazz): List<Field> = getFieldsWithInject(clazz.value, emptyList())
+class AnnotationsHelper {
+
+    fun isComponent(clazz: Clazz): Boolean = clazz.value.isAnnotationPresent(Component::class.java)
+
+    fun getFieldsMarkedWithInject(clazz: Clazz): List<Field> = getFieldsWithInject(clazz.value, emptyList())
 
     private tailrec fun getFieldsWithInject(clazz: Class<*>, fields: List<Field>): List<Field> =
         if (clazz.superclass == null) {
