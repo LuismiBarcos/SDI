@@ -1,14 +1,12 @@
 package org.sdi.domain.usecases.helpers
 
 import com.example.useraccount.services.UserAccountClient
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.sdi.domain.model.Clazz
 import org.sdi.domain.model.Field
 import org.sdi.helper.Foo
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * @author Luis Miguel Barcos
@@ -28,8 +26,8 @@ class AnnotationsHelperTest {
         val nonComponentClazz = Clazz(String::class.java)
 
         // then
-        assertTrue(annotationsHelper.isComponent(componentClazz))
-        assertFalse(annotationsHelper.isComponent(nonComponentClazz))
+        assertThat(annotationsHelper.isComponent(componentClazz)).isTrue()
+        assertThat(annotationsHelper.isComponent(nonComponentClazz)).isFalse()
     }
 
     @Test
@@ -45,6 +43,6 @@ class AnnotationsHelperTest {
         val actualFields = annotationsHelper.getFieldsMarkedWithInject(clazz)
 
         // then
-        assertEquals(expectedFields, actualFields)
+        assertThat(actualFields).isEqualTo(expectedFields)
     }
 }
