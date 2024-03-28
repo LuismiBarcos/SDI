@@ -12,6 +12,13 @@ class AnnotationsHelper {
 
     fun isComponent(clazz: Clazz): Boolean = clazz.value.isAnnotationPresent(Component::class.java)
 
+    fun getComponentClasses(component: Clazz): List<Clazz> =
+        component.value.getAnnotation(Component::class.java)
+            .classes
+            .map { Clazz(it.java) }
+
+    fun getInjectValue(field: Field): String = field.value.getAnnotation(Inject::class.java).value
+
     fun getFieldsMarkedWithInject(clazz: Clazz): List<Field> = getFieldsWithInject(clazz.value, emptyList())
 
     private tailrec fun getFieldsWithInject(clazz: Class<*>, fields: List<Field>): List<Field> =

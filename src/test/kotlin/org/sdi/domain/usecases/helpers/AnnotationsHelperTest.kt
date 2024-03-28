@@ -31,6 +31,42 @@ class AnnotationsHelperTest {
     }
 
     @Test
+    fun `Return component classes`() {
+        // given
+        val componentClazz = Clazz(UserAccountClient::class.java)
+
+        // when
+        val actualClasses = annotationsHelper.getComponentClasses(componentClazz)
+
+        // then
+        assertThat(actualClasses).isEqualTo(listOf(Clazz(UserAccountClient::class.java)))
+    }
+
+    @Test
+    fun `Return default inject value`() {
+        // given
+        val field = Field(UserAccountClient::class.java.declaredFields[0])
+
+        // when
+        val actualValue = annotationsHelper.getInjectValue(field)
+
+        // then
+        assertThat(actualValue).isEqualTo("")
+    }
+
+    @Test
+    fun `Return inject value for annotations with value provided`() {
+        // given
+        val field = Field(UserAccountClient::class.java.declaredFields[1])
+
+        // when
+        val actualValue = annotationsHelper.getInjectValue(field)
+
+        // then
+        assertThat(actualValue).isEqualTo("com.example.useraccount.services.impl.AccountServiceImpl")
+    }
+
+    @Test
     fun `Get fields with inject annotation`() {
         // given
         val expectedFields = listOf(
