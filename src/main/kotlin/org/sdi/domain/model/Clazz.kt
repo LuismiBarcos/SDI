@@ -5,4 +5,6 @@ package org.sdi.domain.model
  */
 data class Clazz(
     val value: Class<*>,
-)
+) {
+    fun getCanonicalName(): ClassCanonicalName = ClassCanonicalName(value.canonicalName)
+}
