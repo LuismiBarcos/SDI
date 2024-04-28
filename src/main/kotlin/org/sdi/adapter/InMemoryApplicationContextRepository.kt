@@ -8,8 +8,8 @@ import org.sdi.domain.ports.ContextRepository
  */
 class InMemoryApplicationContextRepository : ContextRepository {
     internal object Context {
-        val container = Container()
-        val applicationContext = ApplicationContext(Components(emptyList()))
+        var container = Container()
+        var applicationContext = ApplicationContext(Components(emptyList()))
     }
 
     override fun fillDIContainer(instance: Instance, clazz: Clazz) {
@@ -17,7 +17,9 @@ class InMemoryApplicationContextRepository : ContextRepository {
     }
 
     override fun getClazzInstanceByCanonicalName(clazzCanonicalName: ClassCanonicalName): Instance? {
-        TODO("Not yet implemented")
+        return Context.applicationContext.getComponents().values
+            .find { it.clazz.getCanonicalName() == clazzCanonicalName }
+            ?.implementation?.instance
     }
 
     override fun addPendingInjection(pendingInjection: PendingInjection) {

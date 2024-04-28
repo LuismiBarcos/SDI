@@ -1,7 +1,6 @@
 package org.sdi.domain.usecases
 
 import com.example.useraccount.services.UserAccountClient
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
