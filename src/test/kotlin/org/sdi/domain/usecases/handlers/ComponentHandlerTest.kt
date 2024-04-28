@@ -6,7 +6,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -64,7 +63,7 @@ class ComponentHandlerTest {
         val instance = aClazzInstance(clazz)
 
         // when
-        val actualInstance = componentHandler.handleFields(clazz, instance)
+        componentHandler.handleFields(clazz, instance)
 
         // then
         verifyOrder {
@@ -75,7 +74,6 @@ class ComponentHandlerTest {
                 any()
             )
         }
-        assertThat(actualInstance).isEqualTo(instance)
     }
 
     private fun aClazzInstance(clazz: Clazz) = Instance(clazz.value.getDeclaredConstructor().newInstance())

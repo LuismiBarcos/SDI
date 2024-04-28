@@ -17,12 +17,10 @@ class ComponentHandler(
             .forEach { contextRepository.fillDIContainer(componentInstance, Clazz(it.value)) }
     }
 
-    fun handleFields(clazz: Clazz, componentInstance: Instance): Instance {
+    fun handleFields(clazz: Clazz, componentInstance: Instance) {
         annotationsHelper
             .getFieldsMarkedWithInject(clazz)
             .forEach { injectField(it, componentInstance) }
-
-        return componentInstance
     }
 
     private fun injectField(field: Field, componentInstance: Instance) {

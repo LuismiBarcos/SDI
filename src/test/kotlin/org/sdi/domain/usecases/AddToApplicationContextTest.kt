@@ -37,8 +37,6 @@ class AddToApplicationContextTest {
     fun `Handle component class`() {
         // given
         val clazz = Clazz(UserAccountClient::class.java)
-        val instance = aClazzInstance(clazz)
-        every { componentHandler.handleFields(clazz, any()) } returns instance
 
         // when
         addToApplicationContext.add(clazz)
@@ -64,8 +62,6 @@ class AddToApplicationContextTest {
     fun `Add component to application context`() {
         // given
         val clazz = Clazz(UserAccountClient::class.java)
-        val instance = aClazzInstance(clazz)
-        every { componentHandler.handleFields(clazz, any()) } returns instance
 
         // when
         addToApplicationContext.add(clazz)
