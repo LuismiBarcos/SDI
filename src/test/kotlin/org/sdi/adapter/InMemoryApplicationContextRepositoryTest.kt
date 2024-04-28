@@ -32,4 +32,20 @@ class InMemoryApplicationContextRepositoryTest {
         // then
         assertThat(container.values()).hasSize(1)
     }
+
+    @Test
+    fun `Add clazz and instance to application context`() {
+        // given
+        val clazz = Clazz(Foo::class.java)
+        val clazzInstance = Instance(clazz.value.getDeclaredConstructor().newInstance())
+
+        // when
+        repository.addToApplicationContext(clazz, clazzInstance)
+
+        // then
+        assertThat(getApplicationContextComponentsSize()).isEqualTo(1)
+    }
+
+    private fun getApplicationContextComponentsSize() =
+        InMemoryApplicationContextRepository.Context.applicationContext.getComponents().values.size
 }

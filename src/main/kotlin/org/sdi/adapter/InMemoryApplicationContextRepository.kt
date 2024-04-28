@@ -29,6 +29,6 @@ class InMemoryApplicationContextRepository : ContextRepository {
     }
 
     override fun addToApplicationContext(clazz: Clazz, instance: Instance) {
-        TODO("Not yet implemented")
+        Context.applicationContext.addComponent(Component(clazz, Implementation(instance)))
     }
 }
