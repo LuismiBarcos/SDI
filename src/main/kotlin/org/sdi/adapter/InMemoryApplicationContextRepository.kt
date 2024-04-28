@@ -6,9 +6,10 @@ import org.sdi.domain.ports.ContextRepository
 /**
  * @author Luis Miguel Barcos
  */
-class InMemoryApplicationContextRepository: ContextRepository {
+class InMemoryApplicationContextRepository : ContextRepository {
     internal object Context {
         val container = Container()
+        val applicationContext = ApplicationContext(Components(emptyList()))
     }
 
     override fun fillDIContainer(instance: Instance, clazz: Clazz) {
@@ -24,6 +25,10 @@ class InMemoryApplicationContextRepository: ContextRepository {
     }
 
     override fun getClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance? {
+        TODO("Not yet implemented")
+    }
+
+    override fun addToApplicationContext(clazz: Clazz, instance: Instance) {
         TODO("Not yet implemented")
     }
 }

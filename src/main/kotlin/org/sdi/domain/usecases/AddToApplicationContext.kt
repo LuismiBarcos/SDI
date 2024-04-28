@@ -3,6 +3,7 @@ package org.sdi.domain.usecases
 import org.sdi.annotations.Component
 import org.sdi.domain.model.Clazz
 import org.sdi.domain.model.Instance
+import org.sdi.domain.ports.ContextRepository
 import org.sdi.domain.usecases.helpers.AnnotationsHelper
 import org.sdi.domain.usecases.helpers.ComponentHandler
 
@@ -11,7 +12,8 @@ import org.sdi.domain.usecases.helpers.ComponentHandler
  */
 class AddToApplicationContext(
     private val annotationsHelper: AnnotationsHelper,
-    private val componentHandler: ComponentHandler
+    private val componentHandler: ComponentHandler,
+    private val contextRepository: ContextRepository
 ) {
 
     /**
@@ -19,10 +21,11 @@ class AddToApplicationContext(
      * @param clazz
      */
     fun add(clazz: Clazz) {
-        if(annotationsHelper.isComponent(clazz)) {
+        if (annotationsHelper.isComponent(clazz)) {
             val componentInstance = Instance(clazz.value.getDeclaredConstructor().newInstance())
             componentHandler.handleClasses(clazz, componentInstance)
             componentHandler.handleFields(clazz, componentInstance)
+            contextRepository.addToApplicationContext(clazz, componentInstance)
         }
     }
 }
