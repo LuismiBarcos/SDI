@@ -1,7 +1,5 @@
 package org.sdi.domain.model
 
-import org.sdi.domain.NotFound
-
 /**
  * @author Luis Miguel Barcos
  */
@@ -14,10 +12,7 @@ data class Container(
             ?: Implementations(listOf(implementation)).also { value = value + mapOf(Pair(canonicalName, it)) }
     }
 
-    fun getImplementations(canonicalName: ClassCanonicalName): Implementations {
-        return value[canonicalName]
-            ?: throw NotFound("Cannot find implementation for ${canonicalName.value}")
-    }
+    fun getImplementations(canonicalName: ClassCanonicalName): Implementations? = value[canonicalName]
 
     fun values() = value.toMap()
 }

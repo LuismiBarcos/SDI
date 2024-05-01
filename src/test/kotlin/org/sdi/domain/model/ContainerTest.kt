@@ -51,20 +51,12 @@ class ContainerTest {
         // given
         val fooImplementation = Implementation(Instance(Foo()))
         val userClientImplementation = Implementation(Instance(UserAccountClient()))
-
-        container.addImplementation(
-            ClassCanonicalName(UserAccountClient::class.java.canonicalName),
-            fooImplementation
-        )
-        container.addImplementation(
-            ClassCanonicalName(UserAccountClient::class.java.canonicalName),
-            userClientImplementation
-        )
+        anImplementations(fooImplementation, userClientImplementation)
 
         // when
         val actualImplementations = container.getImplementations(
             ClassCanonicalName(UserAccountClient::class.java.canonicalName)
-        )
+        ) ?: Implementations(emptyList())
 
         // then
         assertThat(actualImplementations.values)
@@ -73,6 +65,12 @@ class ContainerTest {
                 fooImplementation,
                 userClientImplementation
             )
+    }
+
+    @Test
+    fun `Get no implementation when given class has no implementation in the container`() {
+        // then
+        assertThat(container.getImplementations(ClassCanonicalName("non-existing class"))).isNull()
     }
 
     @Test
@@ -91,14 +89,17 @@ class ContainerTest {
             .hasSize(1)
     }
 
-    private fun anImplementations() {
+    private fun anImplementations(
+        foo: Implementation = Implementation(Instance(Foo())),
+        userAccountClient: Implementation = Implementation(Instance(UserAccountClient())),
+    ) {
         container.addImplementation(
             ClassCanonicalName(UserAccountClient::class.java.canonicalName),
-            Implementation(Instance(Foo()))
+            foo
         )
         container.addImplementation(
             ClassCanonicalName(UserAccountClient::class.java.canonicalName),
-            Implementation(Instance(UserAccountClient()))
+            userAccountClient
         )
     }
 }
