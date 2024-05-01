@@ -16,19 +16,20 @@ class InMemoryApplicationContextRepository : ContextRepository {
         Context.container.addImplementation(clazz.getCanonicalName(), Implementation(instance))
     }
 
-    override fun getClazzInstanceByCanonicalName(clazzCanonicalName: ClassCanonicalName): Instance? {
-        return Context.applicationContext.getComponents().values
+    override fun getClazzInstanceByCanonicalName(clazzCanonicalName: ClassCanonicalName): Instance? =
+        Context.applicationContext.getComponents().values
             .find { it.clazz.getCanonicalName() == clazzCanonicalName }
             ?.implementation?.instance
-    }
 
     override fun addPendingInjection(pendingInjection: PendingInjection) {
         TODO("Not yet implemented")
     }
 
-    override fun getClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance? {
-        TODO("Not yet implemented")
-    }
+    override fun getClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance? =
+        Context.container
+            .getImplementations(canonicalName)?.values
+            ?.first()
+            ?.instance
 
     override fun addToApplicationContext(clazz: Clazz, instance: Instance) {
         Context.applicationContext.addComponent(Component(clazz, Implementation(instance)))

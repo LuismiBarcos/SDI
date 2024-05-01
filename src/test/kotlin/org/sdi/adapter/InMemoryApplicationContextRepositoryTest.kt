@@ -83,6 +83,19 @@ class InMemoryApplicationContextRepositoryTest {
         assertThat(clazzInstanceByCanonicalName).isNull()
     }
 
+    @Test
+    fun `Get instance from container`() {
+        val instance = Instance(Foo())
+        val clazz = Clazz(Foo::class.java)
+        repository.fillDIContainer(instance, clazz)
+
+        // when
+        val actualInstance = repository.getClazzInstanceFromContainerByCanonicalName(clazz.getCanonicalName())
+
+        // then
+        assertThat(actualInstance).isEqualTo(instance)
+    }
+
     private fun getApplicationContextComponentsSize() =
         InMemoryApplicationContextRepository.Context.applicationContext.getComponents().values.size
 
