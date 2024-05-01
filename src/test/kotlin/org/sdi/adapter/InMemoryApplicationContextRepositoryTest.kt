@@ -90,7 +90,7 @@ class InMemoryApplicationContextRepositoryTest {
         repository.fillDIContainer(instance, clazz)
 
         // when
-        val actualInstance = repository.getClazzInstanceFromContainerByCanonicalName(clazz.getCanonicalName())
+        val actualInstance = repository.getFirstClazzInstanceFromContainerByCanonicalName(clazz.getCanonicalName())
 
         // then
         assertThat(actualInstance).isEqualTo(instance)

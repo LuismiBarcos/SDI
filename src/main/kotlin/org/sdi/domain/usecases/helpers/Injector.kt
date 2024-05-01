@@ -17,7 +17,7 @@ class Injector(private val contextRepository: ContextRepository) {
 
     fun injectDependency(pendingInjection: PendingInjection) {
         val fieldTypeCanonicalName = ClassCanonicalName(pendingInjection.field.value.type.canonicalName)
-        contextRepository.getClazzInstanceFromContainerByCanonicalName(fieldTypeCanonicalName)
+        contextRepository.getFirstClazzInstanceFromContainerByCanonicalName(fieldTypeCanonicalName)
             ?.let { clazzInstance -> inject(pendingInjection, clazzInstance) }
             ?: contextRepository.addPendingInjection(pendingInjection)
     }

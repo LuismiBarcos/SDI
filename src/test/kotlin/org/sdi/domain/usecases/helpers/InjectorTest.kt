@@ -73,7 +73,7 @@ class InjectorTest {
         val expectedValue = Instance("myValue")
         val canonicalName = ClassCanonicalName(String::class.java.canonicalName)
 
-        every { contextRepository.getClazzInstanceFromContainerByCanonicalName(canonicalName) } returns expectedValue
+        every { contextRepository.getFirstClazzInstanceFromContainerByCanonicalName(canonicalName) } returns expectedValue
 
         // when
         injector.injectDependency(PendingInjection(Instance(component), Field(Foo::class.java.declaredFields[0])))
@@ -89,7 +89,7 @@ class InjectorTest {
         val canonicalName = ClassCanonicalName(String::class.java.canonicalName)
         val pendingInjection = PendingInjection(Instance(component), Field(Foo::class.java.declaredFields[0]))
 
-        every { contextRepository.getClazzInstanceFromContainerByCanonicalName(canonicalName) } returns null
+        every { contextRepository.getFirstClazzInstanceFromContainerByCanonicalName(canonicalName) } returns null
 
         // when
         injector.injectDependency(pendingInjection)

@@ -25,7 +25,7 @@ class InMemoryApplicationContextRepository : ContextRepository {
         TODO("Not yet implemented")
     }
 
-    override fun getClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance? =
+    override fun getFirstClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance? =
         Context.container
             .getImplementations(canonicalName)?.values
             ?.first()

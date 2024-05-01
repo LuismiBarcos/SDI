@@ -16,7 +16,7 @@ interface ContextRepository {
 
     fun addPendingInjection(pendingInjection: PendingInjection)
 
-    fun getClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance?
+    fun getFirstClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance?
 
     fun addToApplicationContext(clazz: Clazz, instance: Instance)
 }
