@@ -96,6 +96,22 @@ class InMemoryApplicationContextRepositoryTest {
         assertThat(actualInstance).isEqualTo(instance)
     }
 
+    @Test
+    fun `Add pending injection to the context`() {
+        // given
+        val pendingInjection = PendingInjection(
+            Instance("string instance"),
+            Field(Foo::class.java.declaredFields[0])
+        )
+        val expectedPendingInjections = PendingInjections(listOf(pendingInjection))
+
+        // when
+        repository.addPendingInjection(pendingInjection)
+
+        // then
+        assertThat(InMemoryApplicationContextRepository.Context.pendingInjections).isEqualTo(expectedPendingInjections)
+    }
+
     private fun getApplicationContextComponentsSize() =
         InMemoryApplicationContextRepository.Context.applicationContext.getComponents().values.size
 

@@ -10,6 +10,7 @@ class InMemoryApplicationContextRepository : ContextRepository {
     internal object Context {
         var container = Container()
         var applicationContext = ApplicationContext(Components(emptyList()))
+        var pendingInjections = PendingInjections(emptyList())
     }
 
     override fun fillDIContainer(instance: Instance, clazz: Clazz) {
@@ -22,7 +23,7 @@ class InMemoryApplicationContextRepository : ContextRepository {
             ?.implementation?.instance
 
     override fun addPendingInjection(pendingInjection: PendingInjection) {
-        TODO("Not yet implemented")
+        Context.pendingInjections.addPendingInjection(pendingInjection)
     }
 
     override fun getFirstClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance? =
