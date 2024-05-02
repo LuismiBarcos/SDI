@@ -1,5 +1,9 @@
 package org.sdi.injector
 
+import org.sdi.adapter.InMemoryApplicationContextRepository
+import org.sdi.domain.model.Clazz
+import org.sdi.domain.usecases.*
+import org.sdi.domain.usecases.helpers.AnnotationsHelper
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -10,19 +14,38 @@ import java.util.jar.JarFile
  *@author Luis Miguel Barcos
  */
 class SimpleDependencyInjector {
+    // Dependencies
+    private val annotationsHelper = AnnotationsHelper()
+    private val contextRepository = InMemoryApplicationContextRepository()
+    private val componentHandler = org.sdi.domain.usecases.helpers.ComponentHandler(
+        contextRepository,
+        annotationsHelper,
+        org.sdi.domain.usecases.helpers.Injector(contextRepository)
+    )
 
-    private val componentHandler = ComponentHandler()
-    private val injector = Injector()
+    // Use cases
+    private val handlePendingInjection = HandlePendingInjection(componentHandler)
+    private val clearContextHelpers = ClearContextHelpers(contextRepository)
+    private val getPendingInjections = GetPendingInjections(contextRepository)
+    private val getServiceByClass = GetServiceByClass(contextRepository)
+    private val addToApplicationContext = AddToApplicationContext(
+        annotationsHelper = annotationsHelper,
+        contextRepository = contextRepository,
+        componentHandler = componentHandler
+    )
 
     fun <T> getService(clazz: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return Context.applicationContext[clazz] as T ?: throw Exception("Instance not found")
+        return getServiceByClass.get(Clazz(clazz)).value as T
     }
 
     fun init(clazz: Class<*>) {
         clazz.getResources().forEach {
             if (it.protocol.equals("jar")) {
-                loadJarClasses(URI(clazz.protectionDomain.codeSource.location.file).path, clazz.getClassPackageNamePath())
+                loadJarClasses(
+                    URI(clazz.protectionDomain.codeSource.location.file).path,
+                    clazz.getClassPackageNamePath()
+                )
             } else {
                 val file = File(URI(it.file).path)
                 loadFileClasses(file.listFiles(), clazz.getClassPackageName())
@@ -43,7 +66,7 @@ class SimpleDependencyInjector {
                 continue
             }
             val className = getClassName(entry.name).replace('/', '.')
-            componentHandler.handleClass(classLoader.loadClass(className))
+            addToApplicationContext.add(Clazz(classLoader.loadClass(className)))
         }
     }
 
@@ -52,7 +75,7 @@ class SimpleDependencyInjector {
             if (it.isDirectory) {
                 loadFileClasses(it.listFiles(), "$packageName.${it.name}")
             } else {
-                componentHandler.handleClass(Class.forName("$packageName.${getClassName(it.name)}"))
+                addToApplicationContext.add(Clazz(Class.forName("$packageName.${getClassName(it.name)}")))
             }
         }
     }
@@ -60,13 +83,12 @@ class SimpleDependencyInjector {
     private fun getClassName(name: String): String = name.substring(0, name.length - ".class".length)
 
     private fun executePendingInjections() {
-        Context.pendingInjections.forEach {
-            injector.handleInjects(it.instance, listOf(it.field))
-        }
+        getPendingInjections.get()
+            .values()
+            .forEach { handlePendingInjection.handle(it) }
     }
 
     private fun clear() {
-        Context.dIContainer.clear()
-        Context.pendingInjections.clear()
+        clearContextHelpers.clear()
     }
 }
