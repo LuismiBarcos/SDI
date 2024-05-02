@@ -129,6 +129,28 @@ class InMemoryApplicationContextRepositoryTest {
         assertThat(actualPendingInjections).isEqualTo(expectedPendingInjections)
     }
 
+    @Test
+    fun `Clear context helpers`() {
+        // given
+        val instance = Instance(Foo())
+        val clazz = Clazz(Foo::class.java)
+        val pendingInjection = PendingInjection(
+            Instance("string instance"),
+            Field(Foo::class.java.declaredFields[0])
+        )
+        repository.fillDIContainer(instance, clazz)
+        repository.addPendingInjection(pendingInjection)
+        assertThat(InMemoryApplicationContextRepository.Context.container.values()).hasSize(1)
+        assertThat(InMemoryApplicationContextRepository.Context.pendingInjections.values()).hasSize(1)
+
+        // when
+        repository.clearContextHelpers()
+
+        // then
+        assertThat(InMemoryApplicationContextRepository.Context.container.values()).hasSize(0)
+        assertThat(InMemoryApplicationContextRepository.Context.pendingInjections.values()).hasSize(0)
+    }
+
     private fun getApplicationContextComponentsSize() =
         InMemoryApplicationContextRepository.Context.applicationContext.getComponents().values.size
 

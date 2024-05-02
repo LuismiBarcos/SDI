@@ -18,4 +18,6 @@ interface ContextRepository {
     fun addToApplicationContext(clazz: Clazz, instance: Instance)
 
     fun getPendingInjections(): PendingInjections
+
+    fun clearContextHelpers()
 }

@@ -37,4 +37,9 @@ class InMemoryApplicationContextRepository : ContextRepository {
     }
 
     override fun getPendingInjections(): PendingInjections = Context.pendingInjections
+
+    override fun clearContextHelpers() {
+        Context.container = Container()
+        Context.pendingInjections = PendingInjections(emptyList())
+    }
 }
