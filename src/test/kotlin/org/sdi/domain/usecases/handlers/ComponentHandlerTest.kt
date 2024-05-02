@@ -9,10 +9,7 @@ import io.mockk.verifyOrder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.sdi.domain.model.ClassCanonicalName
-import org.sdi.domain.model.Clazz
-import org.sdi.domain.model.Field
-import org.sdi.domain.model.Instance
+import org.sdi.domain.model.*
 import org.sdi.domain.ports.ContextRepository
 import org.sdi.domain.usecases.helpers.AnnotationsHelper
 import org.sdi.domain.usecases.helpers.ComponentHandler
@@ -72,6 +69,34 @@ class ComponentHandlerTest {
             injector.injectSpecificDependency(
                 ClassCanonicalName("com.example.useraccount.services.impl.AccountServiceImpl"),
                 any()
+            )
+        }
+    }
+
+    @Test
+    fun `Handle pending injection`() {
+        // given
+        val clazz = Clazz(UserAccountClient::class.java)
+        anInjectedFields(clazz)
+        val aClazzInstance = aClazzInstance(clazz)
+        val pendingInjection1 = PendingInjection(aClazzInstance, Field(UserAccountClient::class.java.declaredFields[0]))
+        val pendingInjection2 = PendingInjection(aClazzInstance, Field(UserAccountClient::class.java.declaredFields[1]))
+        val pendingInjections = PendingInjections(listOf(pendingInjection1, pendingInjection2))
+
+
+        // when
+        pendingInjections.values().forEach {
+            componentHandler.handlePendingInjection(it)
+        }
+
+        // then
+        verifyOrder {
+            annotationsHelper.getInjectValue(pendingInjection1.field)
+            injector.injectDependency(pendingInjection1)
+            annotationsHelper.getInjectValue(pendingInjection2.field)
+            injector.injectSpecificDependency(
+                ClassCanonicalName("com.example.useraccount.services.impl.AccountServiceImpl"),
+                pendingInjection2
             )
         }
     }

@@ -20,15 +20,19 @@ class ComponentHandler(
     fun handleFields(clazz: Clazz, componentInstance: Instance) {
         annotationsHelper
             .getFieldsMarkedWithInject(clazz)
-            .forEach { injectField(it, componentInstance) }
+            .forEach { injectField(PendingInjection(componentInstance, it)) }
     }
 
-    private fun injectField(field: Field, componentInstance: Instance) {
-        val classCanonicalName = ClassCanonicalName(annotationsHelper.getInjectValue(field))
+    fun handlePendingInjection(pendingInjection: PendingInjection) {
+        injectField(pendingInjection)
+    }
+
+    private fun injectField(pendingInjection: PendingInjection) {
+        val classCanonicalName = ClassCanonicalName(annotationsHelper.getInjectValue(pendingInjection.field))
         if (classCanonicalName.value.isNotBlank()) {
-            injector.injectSpecificDependency(classCanonicalName, PendingInjection(componentInstance, field))
+            injector.injectSpecificDependency(classCanonicalName, pendingInjection)
         } else {
-            injector.injectDependency(PendingInjection(componentInstance, field))
+            injector.injectDependency(pendingInjection)
         }
     }
 }
