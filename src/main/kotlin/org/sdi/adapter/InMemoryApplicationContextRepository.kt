@@ -35,4 +35,6 @@ class InMemoryApplicationContextRepository : ContextRepository {
     override fun addToApplicationContext(clazz: Clazz, instance: Instance) {
         Context.applicationContext.addComponent(Component(clazz, Implementation(instance)))
     }
+
+    override fun getPendingInjections(): PendingInjections = Context.pendingInjections
 }

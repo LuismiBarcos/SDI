@@ -1,9 +1,6 @@
 package org.sdi.domain.ports
 
-import org.sdi.domain.model.ClassCanonicalName
-import org.sdi.domain.model.Clazz
-import org.sdi.domain.model.Instance
-import org.sdi.domain.model.PendingInjection
+import org.sdi.domain.model.*
 
 /**
  * @author Luis Miguel Barcos
@@ -19,4 +16,6 @@ interface ContextRepository {
     fun getFirstClazzInstanceFromContainerByCanonicalName(canonicalName: ClassCanonicalName): Instance?
 
     fun addToApplicationContext(clazz: Clazz, instance: Instance)
+
+    fun getPendingInjections(): PendingInjections
 }

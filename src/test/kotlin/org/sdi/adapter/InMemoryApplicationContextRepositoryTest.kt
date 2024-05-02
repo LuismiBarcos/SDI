@@ -112,11 +112,29 @@ class InMemoryApplicationContextRepositoryTest {
         assertThat(InMemoryApplicationContextRepository.Context.pendingInjections).isEqualTo(expectedPendingInjections)
     }
 
+    @Test
+    fun `Get pending injections from the repository`() {
+        // given
+        val pendingInjection = PendingInjection(
+            Instance("string instance"),
+            Field(Foo::class.java.declaredFields[0])
+        )
+        val expectedPendingInjections = PendingInjections(listOf(pendingInjection))
+        repository.addPendingInjection(pendingInjection)
+
+        // when
+        val actualPendingInjections = repository.getPendingInjections()
+
+        // then
+        assertThat(actualPendingInjections).isEqualTo(expectedPendingInjections)
+    }
+
     private fun getApplicationContextComponentsSize() =
         InMemoryApplicationContextRepository.Context.applicationContext.getComponents().values.size
 
     private fun clearContext() {
         InMemoryApplicationContextRepository.Context.applicationContext = ApplicationContext(Components(emptyList()))
         InMemoryApplicationContextRepository.Context.container = Container()
+        InMemoryApplicationContextRepository.Context.pendingInjections = PendingInjections(emptyList())
     }
 }
