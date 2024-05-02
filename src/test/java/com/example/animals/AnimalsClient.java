@@ -1,8 +1,8 @@
 package com.example.animals;
 
 import com.example.animals.contracts.Animal;
-import org.sdi.annotations.Component;
-import org.sdi.annotations.Inject;
+import org.sdi.domain.annotations.Component;
+import org.sdi.domain.annotations.Inject;
 
 /**
  * @author Luis Miguel Barcos

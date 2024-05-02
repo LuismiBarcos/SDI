@@ -1,7 +1,7 @@
 package com.example.useraccount.services
 
-import org.sdi.annotations.Component
-import org.sdi.annotations.Inject
+import org.sdi.domain.annotations.Component
+import org.sdi.domain.annotations.Inject
 
 /**
  *@author Luis Miguel Barcos

@@ -1,6 +1,6 @@
 package org.sdi.helper
 
-import org.sdi.annotations.Inject
+import org.sdi.domain.annotations.Inject
 
 /**
  * @author Luis Miguel Barcos

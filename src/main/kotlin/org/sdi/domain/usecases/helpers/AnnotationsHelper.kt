@@ -1,7 +1,7 @@
 package org.sdi.domain.usecases.helpers
 
-import org.sdi.annotations.Component
-import org.sdi.annotations.Inject
+import org.sdi.domain.annotations.Component
+import org.sdi.domain.annotations.Inject
 import org.sdi.domain.model.Clazz
 import org.sdi.domain.model.Field
 

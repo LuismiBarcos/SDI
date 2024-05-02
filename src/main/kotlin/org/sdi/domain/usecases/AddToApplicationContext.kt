@@ -1,6 +1,6 @@
 package org.sdi.domain.usecases
 
-import org.sdi.annotations.Component
+import org.sdi.domain.annotations.Component
 import org.sdi.domain.model.Clazz
 import org.sdi.domain.model.Instance
 import org.sdi.domain.ports.ContextRepository

@@ -2,7 +2,7 @@ package com.example.animals.business.services;
 
 import com.example.animals.business.Aves;
 import com.example.animals.contracts.Animal;
-import org.sdi.annotations.Component;
+import org.sdi.domain.annotations.Component;
 
 /**
  * @author Luis Miguel Barcos

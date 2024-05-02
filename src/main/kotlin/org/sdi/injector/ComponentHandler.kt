@@ -1,7 +1,7 @@
 package org.sdi.injector
 
-import org.sdi.annotations.Component
-import org.sdi.annotations.Inject
+import org.sdi.domain.annotations.Component
+import org.sdi.domain.annotations.Inject
 import java.lang.reflect.Field
 
 /**

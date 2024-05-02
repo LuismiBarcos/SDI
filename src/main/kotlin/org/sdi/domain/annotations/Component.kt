@@ -1,4 +1,4 @@
-package org.sdi.annotations
+package org.sdi.domain.annotations
 
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.TYPE
